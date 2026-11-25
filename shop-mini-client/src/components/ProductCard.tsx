@@ -3,12 +3,14 @@ import type { Product } from "../data/products";
 
 type Props = {
   product: Product;
+  onAddToCart: (product: Product) => void;
 };
 
-export default function ProductCard({ product }: Props) {
+export default function ProductCard({
+  product,
+  onAddToCart,
+}: Props) {
   const isOutOfStock = product.stock === 0;
-
-  console.log("KIỂM TRA:", product.name, product.stock, isOutOfStock);
 
   return (
     <div className="product-card">
@@ -34,6 +36,7 @@ export default function ProductCard({ product }: Props) {
         <button
           className="btn"
           disabled={isOutOfStock}
+          onClick={() => onAddToCart(product)}
         >
           {isOutOfStock ? "Đã hết hàng" : "Thêm vào giỏ"}
         </button>
