@@ -12,8 +12,81 @@ import type { CartItem } from "./components/Cart";
 import type { Product } from "./data/products";
 
 import { products } from "./data/products";
+import { filterProducts } from "./utils/product";
 
 import "./App.css";
+
+function StatePracticeExample() {
+  // useState lưu giá trị thay đổi; setter cập nhật state và khiến React render lại.
+  const [quantity, setQuantity] = useState(0);
+  const [keyword, setKeyword] = useState("");
+  const normalizedKeyword = keyword.trim().toLowerCase();
+  const matchingProducts = normalizedKeyword
+    ? products.filter((product) =>
+        product.name.toLowerCase().includes(normalizedKeyword),
+      )
+    : [];
+
+  return (
+    <section className="container" style={{ marginTop: 40, marginBottom: 40 }}>
+      <h2 className="section-title">Thực hành useState</h2>
+
+      <div style={{ display: "grid", gap: 12, maxWidth: 420 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {/* onClick chạy hàm cập nhật số lượng khi nhấn nút. */}
+          <button
+            className="btn"
+            style={{ width: "auto" }}
+            onClick={() => setQuantity((current) => Math.max(0, current - 1))}
+          >
+            Giảm
+          </button>
+          <button
+            className="btn"
+            style={{ width: "auto" }}
+            onClick={() => setQuantity((current) => current + 1)}
+          >
+            Tăng
+          </button>
+        </div>
+
+        {/* Conditional rendering chọn nội dung theo giá trị quantity. */}
+        {quantity === 0 ? (
+          <p>Chưa có sản phẩm</p>
+        ) : (
+          <p>Số lượng hiện tại: {quantity}</p>
+        )}
+
+        <label htmlFor="state-practice-keyword">
+          Tên sản phẩm hoặc từ khóa tìm kiếm
+        </label>
+        <input
+          id="state-practice-keyword"
+          type="text"
+          value={keyword}
+          placeholder="Nhập từ khóa..."
+          onChange={(event) => setKeyword(event.target.value)}
+          style={{
+            width: "100%",
+            padding: 10,
+            border: "1px solid #d1d5db",
+            borderRadius: 8,
+          }}
+        />
+        {normalizedKeyword &&
+          (matchingProducts.length > 0 ? (
+            <ul style={{ display: "grid", gap: 6, paddingLeft: 20 }}>
+              {matchingProducts.map((product) => (
+                <li key={product.id}>{product.name}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>Không tìm thấy sản phẩm</p>
+          ))}
+      </div>
+    </section>
+  );
+}
 
 function App() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -80,6 +153,15 @@ function App() {
     0
   );
 
+  const cheapProducts = filterProducts(products, {
+    maxPrice: 300000,
+    sort: "asc",
+  });
+  const electronics = filterProducts(products, { category: "Điện tử" });
+  const lowStockProducts = products.filter(
+    (product) => 1 <= product.stock && product.stock <= 5,
+  );
+
   return (
     <>
       <Header
@@ -104,6 +186,22 @@ function App() {
             items={products}
             onAddToCart={addToCart}
           />
+          <ProductList
+            title="Giá dưới 300.000 đ"
+            items={cheapProducts}
+            onAddToCart={addToCart}
+          />
+          <ProductList
+            title="Đồ điện tử"
+            items={electronics}
+            onAddToCart={addToCart}
+          />
+          <ProductList
+            title="Sản phẩm sắp hết hàng"
+            items={lowStockProducts}
+            onAddToCart={addToCart}
+          />
+          <StatePracticeExample />
         </main>
       )}
 
